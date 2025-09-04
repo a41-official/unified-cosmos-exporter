@@ -1,0 +1,32 @@
+listen_address: ":9300"
+metrics_interval: 30
+logging:
+  level: "debug"
+  format: "json"
+
+block_tracking:
+  enabled: true
+  interval: 5
+  max_consecutive_missed: 100
+
+prometheus:
+  server: "http://<server ip>:26660"
+
+chains:
+  - chain_id: "xxx"
+    name: "XXX Network"
+    rpc: "http://<server ip>:26657"
+    api: "http://<server ip>:26617"
+    websocket: "ws://<server ip>:26657/websocket"
+    
+    auto_detect: true
+    
+    validators:
+      - "valoper"
+    
+    wallets:
+      - address: "wallet address"
+        name: "Main Wallet"
+    
+    peers:
+      - "http://<server ip>:26657"
