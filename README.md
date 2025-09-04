@@ -20,7 +20,8 @@
 - 설치 방법
 
 ```
-git clone https://github.com/steve-8000/unified-cosmos-exporter.git
+git clone https://github.com/a41-official/unified-cosmos-exporter.git
+
 ````
 ```
 cd unified-cosmos-exporter && go mod tidy && go build -o zeta-test-exporter
