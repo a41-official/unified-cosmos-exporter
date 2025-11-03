@@ -376,7 +376,8 @@ func (c *UnifiedCollector) collectParamsMetrics(ch chan<- prometheus.Metric) err
 	params, err := c.client.GetSlashingParams()
 	if err != nil {
 		c.logger.Error("Failed to get slashing params", "error", err)
-		return err
+		// return err
+		return nil
 	}
 
 	if signedBlocksWindow, err := strconv.ParseFloat(params.Params.SignedBlocksWindow, 64); err == nil {
@@ -429,6 +430,7 @@ func (c *UnifiedCollector) collectParamsMetrics(ch chan<- prometheus.Metric) err
 	return nil
 }
 
+// GetWalletBalance
 func (c *UnifiedCollector) collectWalletMetrics(ch chan<- prometheus.Metric) error {
 	for _, wallet := range c.cfg.Wallets {
 		balance, err := c.client.GetWalletBalance(wallet.Address)
@@ -439,6 +441,8 @@ func (c *UnifiedCollector) collectWalletMetrics(ch chan<- prometheus.Metric) err
 				if amount, err := strconv.ParseFloat(coin.Amount, 64); err == nil {
 					displayAmount := math.Floor(amount / math.Pow10(c.cfg.TokenDecimals))
 					ch <- prometheus.MustNewConstMetric(c.walletBalance, prometheus.GaugeValue, displayAmount, c.cfg.ChainID, wallet.Address, c.cfg.TokenDisplay)
+				} else {
+					c.logger.Error("Failed to parse token amount", "amount", coin.Amount, "error", err)
 				}
 			}
 		}
@@ -487,15 +491,17 @@ func (c *UnifiedCollector) collectWalletMetrics(ch chan<- prometheus.Metric) err
 	return nil
 }
 
+// GetValidators
 func (c *UnifiedCollector) collectValidatorsMetrics(ch chan<- prometheus.Metric) error {
 	validators, err := c.client.GetValidators()
 	if err != nil {
 		c.logger.Error("Failed to get validators", "error", err)
-		return err
+		return nil
 	}
 
 	// Validators total count
 	totalValidators := float64(len(validators.Validators))
+
 	ch <- prometheus.MustNewConstMetric(c.validatorsTotal, prometheus.GaugeValue, totalValidators, c.cfg.ChainID)
 
 	var activeValidators float64
@@ -667,11 +673,13 @@ func (c *UnifiedCollector) TrackBlocks(ctx context.Context) error {
 			c.logger.Info("Starting block tracking from current height", "height", initialHeight)
 		} else {
 			c.logger.Error("Failed to parse initial block height", "raw_height", status.Result.SyncInfo.LatestBlockHeight, "error", err)
-			return err
+			// return err
+			return nil
 		}
 	} else {
 		c.logger.Error("Failed to get initial block height from status", "error", err)
-		return err
+		// return err
+		return nil
 	}
 	
 	c.mu.Lock()
